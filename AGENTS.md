@@ -8,10 +8,12 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
 1. **公开接口只有两个参数**：`MascotView(_ character: Mascot, state: MascotState)`。尺寸用 `.frame`，深浅色跟随环境。
    不接受片段、时长、缓动、颜色、回调或「播完通知」之类的第三个入口：每多一个参数就是每个产品多一个写错的机会。
    宿主觉得缺什么，改的是 Kit 里的数据或状态表。
-2. **状态只加第一个使用页面能真正区分的**。现有四个来自 MONO 记录页「发送文字后到出现账单或重试卡」。
-   不预先加「思考」「倾听」「睡眠」等没有页面在用的状态。
+2. **状态按语义预设，用不用由宿主决定**。状态名描述角色在做什么（倾听、思考、等待），不按某个页面起名；
+   改名或删除是破坏性变更。没有页面检验过的状态，动作数值是初稿，第一次真正用到时允许重调。
+   需要改播放契约或公开接口才能实现的东西（同一状态多个片段轮换、独立于状态的一次性手势）不属于「加状态」，另行裁决。
 3. **播放契约**：
-   - `idle`、`working` 循环；`completed`、`failed` 先播一次入场片段，然后循环各自的保持片段，不自己回 `idle`。
+   - 状态表里没有 `enter` 的状态直接循环；有 `enter` 的（`greeting`、`completed`、`failed`、`confused`）先播一次入场片段，
+     然后循环各自的保持片段。Kit 不自己换状态，`completed` 等不会自动回 `idle`；`greeting` 的保持片段就是待机片段。
    - 新状态立即打断旧状态：数值量从被打断时的姿势用 0.2 秒过渡到新片段，表情与附属部件立刻取新状态；旧片段不会先回到待机。
    - 同一状态重复传入保持进度。
    - 业务结果不跟随动画，Kit 不提供播放完成的回调。
@@ -60,9 +62,12 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
 
 - 形状层：`roundedRect`（`x y w h r`，连续曲率圆角）、`ellipse`（`cx cy rx ry`）、`path`（`d`，只支持绝对坐标的 `M L Q C Z`），
   用 `fill` 或 `stroke`（配 `lineWidth`）写调色板里的颜色名，可带 `opacity`。
-- 表情：`eye` 以眼睛中心为原点、两只眼各画一次；`extras` 以 `faceCenter` 为原点画一次；`blinks` 决定是否随眼睑压扁。
-- **片段引用的每个表情，每个角色都必须提供**（现有：`round`、`focus`、`happy`、`surprised`、`worried`）。
+- 表情：`eye` 以眼睛中心为原点、两只眼各画一次；第二只眼不同时另写 `rightEye`；`extras` 以 `faceCenter` 为原点画一次；
+  `blinks` 决定是否随眼睑压扁。
+- **片段引用的每个表情，每个角色都必须提供**（现有：`round`、`focus`、`wide`、`happy`、`surprised`、`worried`、`confused`、`sleepy`）。
 - 附属部件：`space` 为 `body`（跟随身体变换）或 `canvas`（只跟随画布），`anchor` 为位置，角色没有的部件直接不画。
+  片段用到的部件名：`spark`（完成）、`dot1` 至 `dot3`（思考）、`question`（困惑）、`zzz`（睡着）。一个部件只有一组轨道，
+  要依次出现的多个图形拆成多个部件。
 
 ## 新增角色
 
@@ -73,8 +78,8 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
 
 ## 新增状态或片段
 
-先确认有真实页面需要它（不变式 2）。在 `motion.json` 加片段与状态项，`MascotState` 加 case，
-新表情要给每个角色补上。
+先按不变式 2 确认它是一个语义状态。在 `motion.json` 加片段与状态项，`MascotState` 加 case，
+新表情要给每个角色补上，并更新 README 的状态表。
 
 ## 测试
 

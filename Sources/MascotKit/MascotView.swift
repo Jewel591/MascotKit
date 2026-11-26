@@ -8,14 +8,31 @@ public enum Mascot: String, CaseIterable, Sendable {
 
 /// 角色状态。宿主把自己的业务状态映射到这里。
 ///
-/// - `idle` 与 `working` 一直循环。
-/// - `completed` 与 `failed` 先播一次入场动作，然后停在各自的姿势上，直到宿主传入别的状态；
-///   Kit 不会自己回到 `idle`。
+/// 状态按语义预设，用不用由宿主决定。除特别说明外都是循环播放，直到宿主传入别的状态；
+/// Kit 不会自己换状态。
 public enum MascotState: String, CaseIterable, Sendable {
+    /// 待机
     case idle
+    /// 登场、打招呼：播一次入场动作，然后与待机相同
+    case greeting
+    /// 正在听用户输入（语音、打字）
+    case listening
+    /// 在想，还没开始处理
+    case thinking
+    /// 正在处理
     case working
+    /// 等用户的下一步操作
+    case waiting
+    /// 成功：播一次入场动作，然后停在完成姿势
     case completed
+    /// 失败：播一次入场动作，然后停在失败姿势
     case failed
+    /// 开心（达成目标等）
+    case happy
+    /// 没听懂、需要补充信息：播一次入场动作，然后停在困惑姿势
+    case confused
+    /// 睡着（长时间无操作、空状态）
+    case sleeping
 }
 
 /// 会动的角色。
@@ -86,11 +103,14 @@ public struct MascotView: View {
     }()
 }
 
-#Preview("四种状态") {
-    HStack(spacing: 24) {
+#Preview("全部状态") {
+    LazyVGrid(columns: Array(repeating: GridItem(.fixed(88), spacing: 24), count: 4), spacing: 24) {
         ForEach(MascotState.allCases, id: \.self) { state in
-            MascotView(.mono, state: state)
-                .frame(width: 88, height: 88)
+            VStack(spacing: 6) {
+                MascotView(.mono, state: state)
+                    .frame(width: 88, height: 88)
+                Text(state.rawValue).font(.caption)
+            }
         }
     }
     .padding(32)

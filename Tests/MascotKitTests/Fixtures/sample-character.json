@@ -18,6 +18,13 @@
   "expressions": {
     "round": { "blinks": true, "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 4, "ry": 5, "fill": "face" }] },
     "focus": { "blinks": true, "eye": [{ "shape": "roundedRect", "x": -5, "y": -2, "w": 10, "h": 4, "r": 2, "fill": "face" }] },
+    "wide": { "blinks": true, "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 5, "ry": 6.5, "fill": "face" }] },
+    "confused": {
+      "blinks": true,
+      "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 5, "ry": 6, "fill": "face" }],
+      "rightEye": [{ "shape": "ellipse", "cx": 0, "cy": 1, "rx": 3, "ry": 3.5, "fill": "face" }]
+    },
+    "sleepy": { "blinks": false, "eye": [{ "shape": "path", "d": "M -5 -1 Q 0 4 5 -1", "stroke": "face", "lineWidth": 3 }] },
     "happy": { "blinks": false, "eye": [{ "shape": "path", "d": "M -5 2 Q 0 -5 5 2", "stroke": "face", "lineWidth": 3 }] },
     "surprised": {
       "blinks": false,

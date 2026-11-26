@@ -64,11 +64,11 @@ enum MascotRenderer {
     ) {
         guard let expression = character.expressions[pose.expression] else { return }
         let open = expression.blinks ? max(minimumEyeOpen, 1 - pose.lids) : 1
-        for eye in character.eyes {
+        for (index, eye) in character.eyes.enumerated() {
             var eyeContext = context
             eyeContext.translateBy(x: eye.x + pose.gaze.x, y: eye.y + pose.gaze.y)
             eyeContext.scaleBy(x: 1, y: open)
-            for layer in expression.eye {
+            for layer in index == 1 ? expression.rightEye ?? expression.eye : expression.eye {
                 draw(layer, palette: palette, in: &eyeContext)
             }
         }
