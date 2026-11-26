@@ -1,0 +1,43 @@
+{
+  "formatVersion": 1,
+  "id": "sample",
+  "canvas": 100,
+  "pivot": [50, 54],
+  "baseRotation": 0,
+  "squashAnchor": [50, 84],
+  "palette": {
+    "light": { "body": "#2F9E77", "face": "#12332A", "accent": "#F2C14E" },
+    "dark": { "body": "#49C596", "face": "#0B211B", "accent": "#F7D584" }
+  },
+  "body": [
+    { "shape": "ellipse", "cx": 50, "cy": 54, "rx": 32, "ry": 30, "fill": "body" },
+    { "shape": "path", "d": "M 44 26 Q 50 12 58 22 Q 52 24 50 28 Z", "fill": "body" }
+  ],
+  "eyes": [[38, 50], [62, 50]],
+  "faceCenter": [50, 50],
+  "expressions": {
+    "round": { "blinks": true, "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 4, "ry": 5, "fill": "face" }] },
+    "focus": { "blinks": true, "eye": [{ "shape": "roundedRect", "x": -5, "y": -2, "w": 10, "h": 4, "r": 2, "fill": "face" }] },
+    "happy": { "blinks": false, "eye": [{ "shape": "path", "d": "M -5 2 Q 0 -5 5 2", "stroke": "face", "lineWidth": 3 }] },
+    "surprised": {
+      "blinks": false,
+      "eye": [{ "shape": "ellipse", "cx": 0, "cy": -1, "rx": 5, "ry": 5, "fill": "face" }],
+      "extras": [{ "shape": "ellipse", "cx": 0, "cy": 14, "rx": 4, "ry": 5, "fill": "face" }]
+    },
+    "worried": {
+      "blinks": true,
+      "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 3.5, "ry": 4.5, "fill": "face" }],
+      "extras": [{ "shape": "path", "d": "M -6 15 C -3 11 3 11 6 15", "stroke": "face", "lineWidth": 3 }]
+    }
+  },
+  "attachments": {
+    "spark": {
+      "space": "body",
+      "anchor": [78, 24],
+      "layers": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 5, "ry": 5, "fill": "accent" }]
+    }
+  },
+  "states": {
+    "idle": { "loop": "completedHold", "still": { "clip": "completedHold", "t": 0 } }
+  }
+}

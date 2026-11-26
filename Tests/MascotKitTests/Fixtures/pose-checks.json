@@ -1,0 +1,144 @@
+{
+  "formatVersion": 1,
+  "tolerance": 1e-05,
+  "checks": [
+    {
+      "name": "旋转与挤压同时变化的中间帧",
+      "clip": "celebrate",
+      "t": 0.36,
+      "expect": {
+        "offset": [
+          0.0,
+          -6.86407425256292
+        ],
+        "rotation": 5.576049501708614,
+        "scale": [
+          1.0557604950170862,
+          1.0557604950170862
+        ],
+        "squash": -0.10147923490204193,
+        "gaze": [
+          0,
+          0
+        ],
+        "lids": 0,
+        "expression": "happy"
+      }
+    },
+    {
+      "name": "表情切换前一刻",
+      "clip": "alarm",
+      "t": 0.6999,
+      "expect": {
+        "offset": [
+          -9.644167278111127e-07,
+          0.0
+        ],
+        "rotation": 0.0,
+        "scale": [
+          1,
+          1
+        ],
+        "squash": -2.9497132653100167e-09,
+        "gaze": [
+          0.0,
+          0.0
+        ],
+        "lids": 0,
+        "expression": "surprised"
+      }
+    },
+    {
+      "name": "表情切换当刻",
+      "clip": "alarm",
+      "t": 0.7,
+      "expect": {
+        "offset": [
+          0.0,
+          0.0
+        ],
+        "rotation": 0.0,
+        "scale": [
+          1,
+          1
+        ],
+        "squash": 0.0,
+        "gaze": [
+          0.0,
+          0.0
+        ],
+        "lids": 0,
+        "expression": "worried"
+      }
+    },
+    {
+      "name": "循环接缝前一刻",
+      "clip": "idle",
+      "t": 5.5999,
+      "expect": {
+        "offset": [
+          0.0,
+          -3.374420298740688e-09
+        ],
+        "rotation": -1.5999999922870396,
+        "scale": [
+          1,
+          1
+        ],
+        "squash": 0,
+        "gaze": [
+          0.0,
+          0.0
+        ],
+        "lids": 0,
+        "expression": "round"
+      }
+    },
+    {
+      "name": "循环接缝后（回到片段开头）",
+      "clip": "idle",
+      "t": 0,
+      "expect": {
+        "offset": [
+          0,
+          0
+        ],
+        "rotation": -1.6,
+        "scale": [
+          1,
+          1
+        ],
+        "squash": 0,
+        "gaze": [
+          0,
+          0
+        ],
+        "lids": 0,
+        "expression": "round"
+      }
+    },
+    {
+      "name": "匀速与回弹缓动",
+      "clip": "working",
+      "t": 1.62,
+      "expect": {
+        "offset": [
+          0.0,
+          -0.43754629661943495
+        ],
+        "rotation": 0.16444209758598727,
+        "scale": [
+          1,
+          1
+        ],
+        "squash": 0.03925695306235536,
+        "gaze": [
+          -0.07796825377405137,
+          0.0
+        ],
+        "lids": 0.6000000000000013,
+        "expression": "focus"
+      }
+    }
+  ]
+}
