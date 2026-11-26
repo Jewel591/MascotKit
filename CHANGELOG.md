@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- 新增状态 `greeting`、`listening`、`thinking`、`waiting`、`happy`、`confused`、`sleeping`。
+- 新增表情 `wide`、`confused`、`sleepy`，附属部件思考圆点、问号与睡着的 z。
+- 表情可用 `rightEye` 单独画第二只眼。
+
 ## 0.1.0
 
 - `MascotView(_:state:)`：内置角色与内置状态两个参数。

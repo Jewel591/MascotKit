@@ -68,7 +68,7 @@ private func sameNumbers(_ a: MascotPose, _ b: MascotPose, _ tolerance: Double =
         for character in Mascot.allCases.map(MascotLibrary.character) + [sample] {
             var layers = character.body
             for expression in character.expressions.values {
-                layers += expression.eye + (expression.extras ?? [])
+                layers += expression.eye + (expression.rightEye ?? []) + (expression.extras ?? [])
             }
             for attachment in (character.attachments ?? [:]).values {
                 layers += attachment.layers
@@ -281,7 +281,7 @@ private func sameNumbers(_ a: MascotPose, _ b: MascotPose, _ tolerance: Double =
 
     /// 完成与失败先播一次入场，然后一直停在各自的姿势上，不自己回待机。
     @Test func terminalStatesPlayEntranceOnceThenHold() {
-        for (state, held) in [(MascotState.completed, "happy"), (.failed, "worried")] {
+        for (state, held) in [(MascotState.completed, "happy"), (.failed, "worried"), (.confused, "confused"), (.greeting, "round")] {
             let spec = MascotLibrary.stateSpec(state, character: character, motion: motion)
             let enter = motion.clips[spec.enter!]!
             let early = MascotEngine.phase(of: spec, clips: motion.clips, elapsed: enter.duration / 2)!
@@ -324,18 +324,49 @@ private func sameNumbers(_ a: MascotPose, _ b: MascotPose, _ tolerance: Double =
         #expect(settled == pure)
     }
 
+    /// 每个视图的眨眼偏移不同，同屏多个角色不同时眨眼；换状态不改变偏移，眨眼节奏不被打断。
+    @Test func autonomyPhaseDesynchronisesBlinksAndSurvivesSwitching() {
+        var time = 100.0
+        while MascotEngine.naturalBlink(at: time) < 0.5 { time += 0.01 }
+        let aligned = MascotPlayback(state: .idle, start: 0)
+        let shifted = MascotPlayback(state: .idle, start: 0, autonomyPhase: 1.5)
+        #expect(aligned.pose(at: time, character: character, motion: motion).lids >= 0.5)
+        #expect(shifted.pose(at: time, character: character, motion: motion).lids == 0)
+        #expect(shifted.switching(to: .waiting, at: time, character: character, motion: motion).autonomyPhase == 1.5)
+    }
+
     @Test func sameStateKeepsProgress() {
         let playback = MascotPlayback(state: .working, start: 100)
         #expect(playback.switching(to: .working, at: 101.3, character: character, motion: motion) == playback)
     }
 
     @Test func stillPosesAreTheRestingFrameOfEachState() {
-        let expected: [MascotState: String] = [.idle: "round", .working: "focus", .completed: "happy", .failed: "worried"]
+        let expected: [MascotState: String] = [
+            .idle: "round", .greeting: "round", .listening: "wide", .thinking: "round", .working: "focus", .waiting: "round",
+            .completed: "happy", .failed: "worried", .happy: "happy", .confused: "confused", .sleeping: "sleepy",
+        ]
+        #expect(expected.count == MascotState.allCases.count)
         for state in MascotState.allCases {
             let spec = MascotLibrary.stateSpec(state, character: character, motion: motion)
             let pose = MascotEngine.stillPose(of: spec, clips: motion.clips)
             #expect(pose.expression == expected[state])
             #expect(pose.lids == 0)
+        }
+    }
+
+    /// 第二只眼可以单独画；没写时两只眼相同。
+    @Test func rightEyeIsOptional() {
+        #expect(character.expressions["confused"]?.rightEye != nil)
+        #expect(character.expressions["round"]?.rightEye == nil)
+    }
+
+    /// 附属部件在自己的状态里出现，静态姿势里也看得到（小组件只有这一帧）。
+    @Test func stateAttachmentsShowInStillPoses() {
+        for (state, name) in [(MascotState.thinking, "dot3"), (.confused, "question"), (.sleeping, "zzz")] {
+            let spec = MascotLibrary.stateSpec(state, character: character, motion: motion)
+            let pose = MascotEngine.stillPose(of: spec, clips: motion.clips)
+            #expect((pose.attachments[name]?.opacity ?? 0) > 0.5, "\(state) 的静态姿势里没有 \(name)")
+            #expect(character.attachments?[name] != nil)
         }
     }
 

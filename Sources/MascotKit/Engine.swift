@@ -206,10 +206,13 @@ struct MascotPlayback: Equatable, Sendable {
     var state: MascotState
     var start: Double
     var origin: MascotPose?
+    /// 自然眨眼与呼吸的时间偏移。每个视图取一个不同的值，同屏多个角色才不会齐刷刷地眨眼；换状态时保持不变。
+    var autonomyPhase: Double
 
-    init(state: MascotState, start: Double) {
+    init(state: MascotState, start: Double, autonomyPhase: Double = 0) {
         self.state = state
         self.start = start
+        self.autonomyPhase = autonomyPhase
     }
 
     /// `time` 时刻的姿势。`time` 是绝对时间（秒）。
@@ -220,7 +223,7 @@ struct MascotPlayback: Equatable, Sendable {
             return MascotPose(expression: "")
         }
         var pose = MascotEngine.pose(clip: clip, at: clipTime)
-        pose = MascotEngine.applyingAutonomy(to: pose, clip: clip, absoluteTime: time)
+        pose = MascotEngine.applyingAutonomy(to: pose, clip: clip, absoluteTime: time + autonomyPhase)
         if let origin {
             pose = MascotEngine.blend(from: origin, to: pose, progress: elapsed / Self.blendDuration)
         }
@@ -232,7 +235,7 @@ struct MascotPlayback: Equatable, Sendable {
         to newState: MascotState, at time: Double, character: CharacterSpec, motion: MotionSpec
     ) -> MascotPlayback {
         guard newState != state else { return self }
-        var next = MascotPlayback(state: newState, start: time)
+        var next = MascotPlayback(state: newState, start: time, autonomyPhase: autonomyPhase)
         next.origin = pose(at: time, character: character, motion: motion)
         return next
     }

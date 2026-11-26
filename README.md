@@ -14,7 +14,7 @@ MascotView(.mono, state: .working)
 ## 安装
 
 ```swift
-.package(url: "https://github.com/Jewel591/MascotKit", from: "0.1.0")
+.package(url: "https://github.com/Jewel591/MascotKit", from: "0.2.0")
 ```
 
 iOS 17 / macOS 14 起，Swift 6。
@@ -23,14 +23,22 @@ iOS 17 / macOS 14 起，Swift 6。
 
 | 状态 | 播放方式 |
 |---|---|
-| `.idle` | 循环 |
-| `.working` | 循环 |
-| `.completed` | 入场动作播一次，然后停在完成姿势 |
-| `.failed` | 入场动作播一次，然后停在失败姿势 |
+| `.idle` | 待机，循环 |
+| `.greeting` | 登场、打招呼：入场动作播一次，然后与待机相同 |
+| `.listening` | 正在听用户输入，循环 |
+| `.thinking` | 在想，还没开始处理，循环 |
+| `.working` | 正在处理，循环 |
+| `.waiting` | 等用户的下一步操作，循环 |
+| `.completed` | 成功：入场动作播一次，然后停在完成姿势 |
+| `.failed` | 失败：入场动作播一次，然后停在失败姿势 |
+| `.happy` | 开心，循环 |
+| `.confused` | 没听懂：入场动作播一次，然后停在困惑姿势 |
+| `.sleeping` | 睡着，循环 |
 
 - 换状态立即打断当前动作，从当前姿势过渡到新状态。
 - 同一状态重复传入不重播。
-- `.completed` 与 `.failed` 不会自己回到 `.idle`，由宿主在合适的时候传入。
+- Kit 不会自己换状态：`.completed`、`.failed`、`.confused` 不会回到 `.idle`，由宿主在合适的时候传入。
+- 状态是预设的，用哪些由宿主决定。
 - 开启「减弱动态效果」、App 不在前台，或运行在小组件与 Live Activity 里时，显示该状态的静态姿势。
 
 宿主把业务状态映射成 `MascotState`；业务结果不跟随动画（例如识别失败后输入内容保留到用户重试，

@@ -158,6 +158,8 @@ struct ExpressionSpec: Equatable, Sendable, Decodable {
     var blinks: Bool
     /// 以眼睛中心为原点，两只眼各画一次
     var eye: [ShapeLayer]
+    /// 第二只眼与第一只不同时单独写（一大一小的困惑眼等）；省略时两只眼都用 `eye`
+    var rightEye: [ShapeLayer]?
     /// 以 `faceCenter` 为原点画一次（嘴等）
     var extras: [ShapeLayer]?
 }
