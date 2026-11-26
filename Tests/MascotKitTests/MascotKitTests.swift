@@ -324,6 +324,17 @@ private func sameNumbers(_ a: MascotPose, _ b: MascotPose, _ tolerance: Double =
         #expect(settled == pure)
     }
 
+    /// 每个视图的眨眼偏移不同，同屏多个角色不同时眨眼；换状态不改变偏移，眨眼节奏不被打断。
+    @Test func autonomyPhaseDesynchronisesBlinksAndSurvivesSwitching() {
+        var time = 100.0
+        while MascotEngine.naturalBlink(at: time) < 0.5 { time += 0.01 }
+        let aligned = MascotPlayback(state: .idle, start: 0)
+        let shifted = MascotPlayback(state: .idle, start: 0, autonomyPhase: 1.5)
+        #expect(aligned.pose(at: time, character: character, motion: motion).lids >= 0.5)
+        #expect(shifted.pose(at: time, character: character, motion: motion).lids == 0)
+        #expect(shifted.switching(to: .waiting, at: time, character: character, motion: motion).autonomyPhase == 1.5)
+    }
+
     @Test func sameStateKeepsProgress() {
         let playback = MascotPlayback(state: .working, start: 100)
         #expect(playback.switching(to: .working, at: 101.3, character: character, motion: motion) == playback)

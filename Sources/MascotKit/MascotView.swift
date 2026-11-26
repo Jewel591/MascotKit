@@ -56,7 +56,9 @@ public struct MascotView: View {
     public init(_ character: Mascot, state: MascotState) {
         self.character = character
         self.state = state
-        _playback = State(initialValue: MascotPlayback(state: state, start: Self.now()))
+        _playback = State(initialValue: MascotPlayback(
+            state: state, start: Self.now(), autonomyPhase: Double.random(in: 0 ..< 60)
+        ))
     }
 
     public var body: some View {
