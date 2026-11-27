@@ -23,7 +23,7 @@ MascotKit 不是每个 App 的必备能力，没有角色需求的产品不接�
 1. 依赖用公开地址与兼容版本范围：
 
    ```swift
-   .package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.0")
+   .package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.1")
    ```
 
    Xcode 工程里选 Up to Next Major Version，不指向本地路径或分支。
