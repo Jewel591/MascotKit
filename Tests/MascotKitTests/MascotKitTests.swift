@@ -137,7 +137,7 @@ private func sameNumbers(_ a: MascotPose, _ b: MascotPose, _ tolerance: Double =
         }
     }
 
-    /// 动作数据由 `scripts/import-motion.mjs` 生成：待机与工作各由多个片段轮换。
+    /// 待机与工作各由多个片段轮换。
     @Test func idleAndWorkingRotateThroughSeveralClips() {
         #expect(Set(motion.states["idle"]!.loop).count >= 3)
         #expect(Set(motion.states["working"]!.loop).count >= 6)
@@ -231,7 +231,7 @@ private func sameNumbers(_ a: MascotPose, _ b: MascotPose, _ tolerance: Double =
 // MARK: - 自主行为
 
 @Suite struct AutonomyTests {
-    /// 网页调试台用 `Math.imul` 实现同一散列，同一组向量写在它的测试里（social-studio 的 tools/mascot.test.mjs）。
+    /// 网页调试台用 `Math.imul` 实现同一散列，同一组向量写在它的测试里。
     @Test func hashMatchesTheWebConsole() {
         #expect([1, 12345, 0xFFFF_FFFF].map(MascotEngine.hash) == [2_693_262_067, 4_207_900_869, 3_850_105_811])
     }

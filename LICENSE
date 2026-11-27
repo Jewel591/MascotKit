@@ -3,15 +3,14 @@ Copyright (c) 2026 Ivens Liao. All rights reserved.
 本仓库公开仅为方便作者自己的 App 通过 Swift Package Manager 引用。
 
 代码、角色造型与配色为作者原创作品，只授权用于作者本人发布的产品。
-动作片段由 第三方动作数据换算而来（见 scripts/import-motion.mjs），不在本声明的原创范围内。
+上述原创声明仅涵盖代码、角色造型与配色。
 未经书面许可，不得复制、修改、再分发本仓库的任何内容，也不得把其中的角色用于其他产品、
 素材包、模板或衍生作品。
 
 This repository is public only so that the author's own apps can depend on it
 through Swift Package Manager. The source code, character designs and palettes
 are original works of the author and are licensed solely for use in products
-published by the author. Motion clips are converted from third-party motion data
-(see scripts/import-motion.mjs) and are not claimed as original. No
+published by the author. The originality statement covers only the code, character designs and palettes. No
 permission is granted to copy, modify or redistribute any part of this
 repository, or to use the characters in any other product, asset pack, template
 or derivative work, without prior written consent.
