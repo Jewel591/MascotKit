@@ -14,7 +14,7 @@ MascotView(.mono, state: .working)
 ## 安装
 
 ```swift
-.package(url: "https://github.com/Jewel591/MascotKit", from: "0.2.0")
+.package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.0")
 ```
 
 iOS 17 / macOS 14 起，Swift 6。
@@ -29,10 +29,10 @@ iOS 17 / macOS 14 起，Swift 6。
 | `.thinking` | 在想，还没开始处理，循环 |
 | `.working` | 正在处理，循环 |
 | `.waiting` | 等用户的下一步操作，循环 |
-| `.completed` | 成功：入场动作播一次，然后停在完成姿势 |
-| `.failed` | 失败：入场动作播一次，然后停在失败姿势 |
+| `.completed` | 成功：入场动作播一次，然后保持开心的待机 |
+| `.failed` | 失败：下沉、低头，停在失败姿势 |
 | `.happy` | 开心，循环 |
-| `.confused` | 没听懂：入场动作播一次，然后停在困惑姿势 |
+| `.confused` | 没听懂：反复摇头 |
 | `.sleeping` | 睡着，循环 |
 
 - 换状态立即打断当前动作，从当前姿势过渡到新状态。

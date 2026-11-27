@@ -23,7 +23,7 @@ MascotKit 不是每个 App 的必备能力，没有角色需求的产品不接�
 1. 依赖用公开地址与兼容版本范围：
 
    ```swift
-   .package(url: "https://github.com/Jewel591/MascotKit", from: "0.2.0")
+   .package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.0")
    ```
 
    Xcode 工程里选 Up to Next Major Version，不指向本地路径或分支。
@@ -51,7 +51,7 @@ MascotKit 不是每个 App 的必备能力，没有角色需求的产品不接�
 ## 状态语义
 
 - 状态共 11 个，清单与语义见 README「状态」。它们是预设，宿主只映射自己用得到的那几个，不必凑满。
-- 多数状态循环；`greeting`、`completed`、`failed`、`confused` 播一次入场后停在各自的姿势（`greeting` 之后与待机相同）。
+- 多数状态循环；`greeting`、`completed` 先播一次入场动作，然后循环各自的保持片段（`greeting` 之后与待机相同）。
 - 回到 `idle` 由宿主决定：业务上「这一轮结束了」的时刻传入 `.idle`，不要用定时器去猜动画播完没有。
 - 业务结果不跟随动画：账单卡片、重试卡片、输入内容的去留只看业务状态。
 - 换状态会立即打断，快速连续切换是安全的。

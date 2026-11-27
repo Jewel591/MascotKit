@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "mono",
   "canvas": 26,
   "pivot": [13, 13],
@@ -14,6 +14,7 @@
   ],
   "eyes": [[13, 12.9], [16, 12.9]],
   "faceCenter": [14.5, 12.9],
+  "faceTravel": [3, 3],
   "expressions": {
     "round": {
       "blinks": true,
@@ -32,6 +33,14 @@
       "eye": [{ "shape": "ellipse", "cx": 0, "cy": -0.1, "rx": 1.2, "ry": 1.75, "fill": "face" }],
       "rightEye": [{ "shape": "ellipse", "cx": 0, "cy": 0.3, "rx": 0.8, "ry": 0.95, "fill": "face" }],
       "extras": [{ "shape": "path", "d": "M -0.7 3.1 L 0.7 3.1", "stroke": "face", "lineWidth": 0.8 }]
+    },
+    "calm": {
+      "blinks": true,
+      "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0.1, "rx": 1.05, "ry": 1.2, "fill": "face" }]
+    },
+    "squinted": {
+      "blinks": true,
+      "eye": [{ "shape": "roundedRect", "x": -1.1, "y": -0.45, "w": 2.2, "h": 0.9, "r": 0.45, "fill": "face" }]
     },
     "sleepy": {
       "blinks": false,

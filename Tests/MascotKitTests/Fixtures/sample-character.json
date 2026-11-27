@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "id": "sample",
   "canvas": 100,
   "pivot": [50, 54],
@@ -15,6 +15,7 @@
   ],
   "eyes": [[38, 50], [62, 50]],
   "faceCenter": [50, 50],
+  "faceTravel": [12, 10],
   "expressions": {
     "round": { "blinks": true, "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 4, "ry": 5, "fill": "face" }] },
     "focus": { "blinks": true, "eye": [{ "shape": "roundedRect", "x": -5, "y": -2, "w": 10, "h": 4, "r": 2, "fill": "face" }] },
@@ -24,6 +25,8 @@
       "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 5, "ry": 6, "fill": "face" }],
       "rightEye": [{ "shape": "ellipse", "cx": 0, "cy": 1, "rx": 3, "ry": 3.5, "fill": "face" }]
     },
+    "calm": { "blinks": true, "eye": [{ "shape": "ellipse", "cx": 0, "cy": 0, "rx": 4, "ry": 3.6, "fill": "face" }] },
+    "squinted": { "blinks": true, "eye": [{ "shape": "roundedRect", "x": -5, "y": -1.5, "w": 10, "h": 3, "r": 1.5, "fill": "face" }] },
     "sleepy": { "blinks": false, "eye": [{ "shape": "path", "d": "M -5 -1 Q 0 4 5 -1", "stroke": "face", "lineWidth": 3 }] },
     "happy": { "blinks": false, "eye": [{ "shape": "path", "d": "M -5 2 Q 0 -5 5 2", "stroke": "face", "lineWidth": 3 }] },
     "surprised": {
@@ -45,6 +48,6 @@
     }
   },
   "states": {
-    "idle": { "loop": "completedHold", "still": { "clip": "completedHold", "t": 0 } }
+    "idle": { "loop": "failedHold", "still": { "clip": "failedHold", "t": 0 } }
   }
 }
