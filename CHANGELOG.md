@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- 全部状态的动作改由 Grok Bot 的动作片段换算而来（`scripts/import-grok-motion.mjs`），`motion.json` 成为生成物。
+- 数据格式第 2 版：新增立体转动轨道 `turn`（平面角色上投影为身体变窄与脸部滑动），挤压改为横纵两个倍率，
+  状态的 `loop` 可写多个片段按顺序轮换，片段之间用 0.3 秒接缝过渡；移除视线轨道 `gaze`。
+- 待机在三个片段间轮换，工作在六个片段间轮换。`failed`、`confused` 不再有单独的入场片段。
+- 新增表情 `calm`、`squinted`；角色新增 `faceTravel`。
+
 ## 0.2.0
 
 - 新增状态 `greeting`、`listening`、`thinking`、`waiting`、`happy`、`confused`、`sleeping`。

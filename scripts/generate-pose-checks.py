@@ -56,9 +56,9 @@ def pose(clip, t):
     return {
         "offset": sample(tr.get("position"), t, [0, 0]),
         "rotation": sample(tr.get("rotation"), t, 0),
+        "turn": sample(tr.get("turn"), t, [0, 0]),
         "scale": sample(tr.get("scale"), t, [1, 1]),
-        "squash": sample(tr.get("squash"), t, 0),
-        "gaze": sample(tr.get("gaze"), t, [0, 0]),
+        "squash": sample(tr.get("squash"), t, [1, 1]),
         "lids": sample(tr.get("lids"), t, 0),
         "expression": expression(tr["expression"], t),
     }
@@ -67,15 +67,17 @@ def pose(clip, t):
 motion = json.load(open(sys.argv[1]))
 clips = motion["clips"]
 checks = [
-    ("旋转与挤压同时变化的中间帧", "celebrate", 0.36),
-    ("表情切换前一刻", "alarm", 0.6999),
-    ("表情切换当刻", "alarm", 0.7),
-    ("循环接缝前一刻", "idle", 5.5999),
-    ("循环接缝后（回到片段开头）", "idle", 0),
-    ("匀速与回弹缓动", "working", 1.62),
+    ("挤压与位移同时变化的中间帧", "celebrate", 0.2),
+    ("落地回弹（缓动的纵向控制点超出 0 到 1）", "celebrate", 1.0),
+    ("表情切换前一刻", "confused", 0.4692),
+    ("表情切换当刻", "confused", 0.4693),
+    ("整圈转动的中途", "idleA", 3.0),
+    ("片段结尾", "idleB", 4.0),
+    ("表演性眨眼闭到一半", "idleB", 1.5111),
+    ("裁剪到工作区的片段开头", "happy", 0),
 ]
 out = {
-    "formatVersion": 1,
+    "formatVersion": 2,
     "tolerance": 1e-5,
     "checks": [{"name": n, "clip": c, "t": t, "expect": pose(clips[c], t)} for n, c, t in checks],
 }

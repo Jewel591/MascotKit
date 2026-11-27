@@ -1,7 +1,7 @@
 import Foundation
 
 /// 数据格式版本。角色与动作 JSON 的 `formatVersion` 必须等于它；格式有不兼容变化时同步加一。
-let mascotFormatVersion = 1
+let mascotFormatVersion = 2
 
 /// 二维量，JSON 里写成 `[x, y]`。
 struct Vec2: Equatable, Sendable, Codable {
@@ -86,11 +86,11 @@ struct ClipTracks: Equatable, Sendable, Decodable {
     var position: [Keyframe<Vec2>]?
     /// 叠加在角色固定倾角上的角度
     var rotation: [Keyframe<Double>]?
+    /// 立体转动 `[左右转, 俯仰]`，单位为度。角色是平面的，渲染时投影成身体变窄与脸部滑动，见 `MascotEngine.projection`
+    var turn: [Keyframe<Vec2>]?
     var scale: [Keyframe<Vec2>]?
-    /// 挤压量：正值压扁、负值拉长，绕角色的 `squashAnchor`
-    var squash: [Keyframe<Double>]?
-    /// 视线偏移，单位为角色设计坐标
-    var gaze: [Keyframe<Vec2>]?
+    /// 挤压 `[横向倍率, 纵向倍率]`，绕角色的 `squashAnchor`
+    var squash: [Keyframe<Vec2>]?
     /// 眼睑闭合程度 0–1。写了这条轨道的片段不再叠加自然眨眼
     var lids: [Keyframe<Double>]?
     /// 表情名，逐帧切换不插值
@@ -111,7 +111,7 @@ struct ClipSpec: Equatable, Sendable, Decodable {
     var attachments: [String: AttachmentTracks]?
 }
 
-/// 一个状态怎样播放：可选的入场片段播一次，然后循环片段一直播到宿主换状态。
+/// 一个状态怎样播放：可选的入场片段播一次，然后循环片段按顺序轮换，一直播到宿主换状态。
 struct StateSpec: Equatable, Sendable, Decodable {
     struct Still: Equatable, Sendable, Decodable {
         var clip: String
@@ -119,9 +119,26 @@ struct StateSpec: Equatable, Sendable, Decodable {
     }
 
     var enter: String?
-    var loop: String
+    /// 循环片段，按顺序一个接一个播，播完回到第一个。JSON 里只有一个时可以直接写片段名
+    var loop: [String]
     /// 减弱动态效果、小组件与 Live Activity 使用的静态姿势
     var still: Still
+
+    private enum CodingKeys: String, CodingKey { case enter, loop, still }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        enter = try container.decodeIfPresent(String.self, forKey: .enter)
+        if let single = try? container.decode(String.self, forKey: .loop) {
+            loop = [single]
+        } else {
+            loop = try container.decode([String].self, forKey: .loop)
+        }
+        guard !loop.isEmpty else {
+            throw DecodingError.dataCorruptedError(forKey: .loop, in: container, debugDescription: "循环片段不能为空")
+        }
+        still = try container.decode(Still.self, forKey: .still)
+    }
 }
 
 struct MotionSpec: Equatable, Sendable, Decodable {
@@ -194,6 +211,8 @@ struct CharacterSpec: Equatable, Sendable, Decodable {
     var body: [ShapeLayer]
     var eyes: [Vec2]
     var faceCenter: Vec2
+    /// 立体转动转到侧面时，脸在身体上横向与纵向滑出的最大距离（设计坐标）
+    var faceTravel: Vec2
     var expressions: [String: ExpressionSpec]
     var attachments: [String: AttachmentSpec]?
     /// 个别状态改用本角色专属的播放定义

@@ -11,9 +11,9 @@ struct MascotPose: Equatable, Sendable {
 
     var offset: Vec2 = .zero
     var rotation: Double = 0
+    var turn: Vec2 = .zero
     var scale: Vec2 = .one
-    var squash: Double = 0
-    var gaze: Vec2 = .zero
+    var squash: Vec2 = .one
     var lids: Double = 0
     var expression: String
     var attachments: [String: Attachment] = [:]
@@ -99,9 +99,9 @@ enum MascotEngine {
         var pose = MascotPose(expression: sample(tracks.expression, at: time))
         pose.offset = sample(tracks.position, at: time, rest: .zero)
         pose.rotation = sample(tracks.rotation, at: time, rest: 0)
+        pose.turn = sample(tracks.turn, at: time, rest: .zero)
         pose.scale = sample(tracks.scale, at: time, rest: .one)
-        pose.squash = sample(tracks.squash, at: time, rest: 0)
-        pose.gaze = sample(tracks.gaze, at: time, rest: .zero)
+        pose.squash = sample(tracks.squash, at: time, rest: .one)
         pose.lids = sample(tracks.lids, at: time, rest: 0)
         for (name, attachment) in clip.attachments ?? [:] {
             pose.attachments[name] = MascotPose.Attachment(
@@ -114,16 +114,50 @@ enum MascotEngine {
         return pose
     }
 
-    /// 状态进入 `elapsed` 秒后正在播放的片段与片段内时间：入场片段播一次，之后循环片段反复播。
-    static func phase(of state: StateSpec, clips: [String: ClipSpec], elapsed: Double) -> (clip: ClipSpec, time: Double)? {
+    /// 状态进入若干秒后播到哪里：正在播的片段、片段内时间，以及它接在哪个片段后面。
+    struct Phase: Equatable {
+        var clip: ClipSpec
+        var time: Double
+        /// 上一个片段。片段之间的接缝用它的结尾姿势过渡；状态的第一个片段没有上一个
+        var previous: ClipSpec?
+    }
+
+    /// 片段之间接缝的过渡时长
+    static let joinDuration = 0.3
+
+    /// 入场片段播一次，之后循环片段按顺序轮换。
+    static func phase(of state: StateSpec, clips: [String: ClipSpec], elapsed: Double) -> Phase? {
         var local = max(0, elapsed)
+        var previous: ClipSpec?
         if let name = state.enter, let enter = clips[name] {
-            if local < enter.duration { return (enter, local) }
+            if local < enter.duration { return Phase(clip: enter, time: local, previous: nil) }
             local -= enter.duration
+            previous = enter
         }
-        guard let loop = clips[state.loop] else { return nil }
-        let time = loop.duration > 0 ? local.truncatingRemainder(dividingBy: loop.duration) : 0
-        return (loop, time)
+        let loops = state.loop.compactMap { clips[$0] }
+        let total = loops.reduce(0) { $0 + $1.duration }
+        guard let last = loops.last, total > 0 else {
+            return loops.first.map { Phase(clip: $0, time: 0, previous: previous) }
+        }
+        if local >= total {
+            local = local.truncatingRemainder(dividingBy: total)
+            previous = last
+        }
+        for clip in loops {
+            if local < clip.duration { return Phase(clip: clip, time: local, previous: previous) }
+            local -= clip.duration
+            previous = clip
+        }
+        return Phase(clip: last, time: last.duration, previous: previous)
+    }
+
+    /// 某个播放位置的姿势：片段刚开始的一小段时间里，数值量从上一个片段的结尾姿势过渡过来。
+    static func pose(at phase: Phase) -> MascotPose {
+        let pose = pose(clip: phase.clip, at: phase.time)
+        guard let previous = phase.previous, phase.time < joinDuration else { return pose }
+        return blend(
+            from: self.pose(clip: previous, at: previous.duration), to: pose, progress: phase.time / joinDuration
+        )
     }
 
     static func stillPose(of state: StateSpec, clips: [String: ClipSpec]) -> MascotPose {
@@ -167,7 +201,10 @@ enum MascotEngine {
         Double(value) / 4_294_967_296
     }
 
-    /// 呼吸：叠加在挤压量上的小幅起伏。
+    /// 呼吸压扁多少，横向就鼓出这个比例
+    static let squashSpread = 0.7
+
+    /// 呼吸：叠加在挤压上的小幅起伏。
     static func breath(at time: Double) -> Double {
         0.012 * sin(2 * .pi * time / 3.4)
     }
@@ -178,23 +215,59 @@ enum MascotEngine {
         if clip.tracks.lids == nil {
             pose.lids = max(pose.lids, naturalBlink(at: absoluteTime))
         }
-        pose.squash += breath(at: absoluteTime)
+        let breath = breath(at: absoluteTime)
+        pose.squash.x *= 1 + breath * squashSpread
+        pose.squash.y *= 1 - breath
         return pose
     }
 
     // MARK: - 状态切换
 
     /// 从 `origin` 过渡到 `target`。数值量插值；表情与附属部件直接取新状态。
+    /// 角度先折算到离目标最近的一圈：转完整圈的片段结尾是 360 度，不能再倒着转回来。
     static func blend(from origin: MascotPose, to target: MascotPose, progress: Double) -> MascotPose {
         guard progress < 1 else { return target }
         let eased = ease(.easeOut, max(0, progress))
         var pose = target
         pose.offset = mix(origin.offset, target.offset, eased)
-        pose.rotation = mix(origin.rotation, target.rotation, eased)
+        pose.rotation = mix(nearest(origin.rotation, to: target.rotation), target.rotation, eased)
+        pose.turn = Vec2(
+            x: mix(nearest(origin.turn.x, to: target.turn.x), target.turn.x, eased),
+            y: mix(nearest(origin.turn.y, to: target.turn.y), target.turn.y, eased)
+        )
         pose.scale = mix(origin.scale, target.scale, eased)
         pose.squash = mix(origin.squash, target.squash, eased)
-        pose.gaze = mix(origin.gaze, target.gaze, eased)
         return pose
+    }
+
+    private static func nearest(_ angle: Double, to target: Double) -> Double {
+        angle + 360 * ((target - angle) / 360).rounded()
+    }
+
+    // MARK: - 立体转动的平面投影
+
+    /// 立体转动画在平面角色上的样子。
+    struct Projection: Equatable {
+        /// 身体的横向与纵向倍率：转向侧面时变窄，像一张卡片
+        var scale: Vec2
+        /// 脸在身体上滑动的距离（设计坐标）
+        var faceOffset: Vec2
+        /// 转到背面时不画脸
+        var faceVisible: Bool
+    }
+
+    /// 身体侧对观众时保留的最小宽度比例，压成 0 会让角色在一帧里消失
+    static let minimumFlatness = 0.05
+
+    /// 左右转 `turn.x` 度、俯仰 `turn.y` 度（正值低头）时的投影。
+    static func projection(turn: Vec2, faceTravel: Vec2) -> Projection {
+        let yaw = turn.x * .pi / 180
+        let pitch = turn.y * .pi / 180
+        return Projection(
+            scale: Vec2(x: max(minimumFlatness, abs(cos(yaw))), y: max(minimumFlatness, abs(cos(pitch)))),
+            faceOffset: Vec2(x: faceTravel.x * sin(yaw), y: faceTravel.y * sin(pitch)),
+            faceVisible: cos(yaw) * cos(pitch) > 0
+        )
     }
 }
 
@@ -219,11 +292,11 @@ struct MascotPlayback: Equatable, Sendable {
     func pose(at time: Double, character: CharacterSpec, motion: MotionSpec) -> MascotPose {
         let spec = MascotLibrary.stateSpec(state, character: character, motion: motion)
         let elapsed = time - start
-        guard let (clip, clipTime) = MascotEngine.phase(of: spec, clips: motion.clips, elapsed: elapsed) else {
+        guard let phase = MascotEngine.phase(of: spec, clips: motion.clips, elapsed: elapsed) else {
             return MascotPose(expression: "")
         }
-        var pose = MascotEngine.pose(clip: clip, at: clipTime)
-        pose = MascotEngine.applyingAutonomy(to: pose, clip: clip, absoluteTime: time + autonomyPhase)
+        var pose = MascotEngine.pose(at: phase)
+        pose = MascotEngine.applyingAutonomy(to: pose, clip: phase.clip, absoluteTime: time + autonomyPhase)
         if let origin {
             pose = MascotEngine.blend(from: origin, to: pose, progress: elapsed / Self.blendDuration)
         }

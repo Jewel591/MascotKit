@@ -1,13 +1,10 @@
 import SwiftUI
 
 /// 把一个姿势画进 `GraphicsContext`。变换顺序与网页调试台一致：
-/// 画布缩放 → 位移 → 绕 `pivot` 旋转与缩放 → 绕 `squashAnchor` 挤压。
+/// 画布缩放 → 位移 → 绕 `pivot` 旋转、缩放与立体转动的投影 → 绕 `squashAnchor` 挤压。
 enum MascotRenderer {
     /// 眨眼时眼睛保留的最小高度比例，完全压成 0 会让眼睛在一帧里消失
     static let minimumEyeOpen = 0.1
-    /// 挤压时横向补偿的比例：压扁多少，横向就鼓出这个比例
-    static let squashSpread = 0.7
-
     static func draw(
         _ pose: MascotPose,
         character: CharacterSpec,
@@ -22,6 +19,7 @@ enum MascotRenderer {
         canvas.scaleBy(x: unit, y: unit)
         let palette = dark ? character.palette.dark : character.palette.light
 
+        let projection = MascotEngine.projection(turn: pose.turn, faceTravel: character.faceTravel)
         var body = canvas
         body.translateBy(
             x: pose.offset.x * character.canvas / 100,
@@ -29,16 +27,20 @@ enum MascotRenderer {
         )
         transform(&body, about: character.pivot) { inner in
             inner.rotate(by: .degrees(character.baseRotation + pose.rotation))
-            inner.scaleBy(x: pose.scale.x, y: pose.scale.y)
+            inner.scaleBy(x: pose.scale.x * projection.scale.x, y: pose.scale.y * projection.scale.y)
         }
         transform(&body, about: character.squashAnchor) { inner in
-            inner.scaleBy(x: 1 + pose.squash * squashSpread, y: 1 - pose.squash)
+            inner.scaleBy(x: pose.squash.x, y: pose.squash.y)
         }
 
         for layer in character.body {
             draw(layer, palette: palette, in: &body)
         }
-        drawFace(pose, character: character, palette: palette, in: &body)
+        if projection.faceVisible {
+            var face = body
+            face.translateBy(x: projection.faceOffset.x, y: projection.faceOffset.y)
+            drawFace(pose, character: character, palette: palette, in: &face)
+        }
 
         for name in (character.attachments ?? [:]).keys.sorted() {
             guard let spec = character.attachments?[name],
@@ -66,7 +68,7 @@ enum MascotRenderer {
         let open = expression.blinks ? max(minimumEyeOpen, 1 - pose.lids) : 1
         for (index, eye) in character.eyes.enumerated() {
             var eyeContext = context
-            eyeContext.translateBy(x: eye.x + pose.gaze.x, y: eye.y + pose.gaze.y)
+            eyeContext.translateBy(x: eye.x, y: eye.y)
             eyeContext.scaleBy(x: 1, y: open)
             for layer in index == 1 ? expression.rightEye ?? expression.eye : expression.eye {
                 draw(layer, palette: palette, in: &eyeContext)

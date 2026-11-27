@@ -23,13 +23,13 @@ public enum MascotState: String, CaseIterable, Sendable {
     case working
     /// 等用户的下一步操作
     case waiting
-    /// 成功：播一次入场动作，然后停在完成姿势
+    /// 成功：播一次入场动作，然后保持开心的待机
     case completed
-    /// 失败：播一次入场动作，然后停在失败姿势
+    /// 失败：下沉、低头，停在失败姿势
     case failed
     /// 开心（达成目标等）
     case happy
-    /// 没听懂、需要补充信息：播一次入场动作，然后停在困惑姿势
+    /// 没听懂、需要补充信息：反复摇头
     case confused
     /// 睡着（长时间无操作、空状态）
     case sleeping
