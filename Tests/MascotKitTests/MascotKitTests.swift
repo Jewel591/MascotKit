@@ -137,7 +137,7 @@ private func sameNumbers(_ a: MascotPose, _ b: MascotPose, _ tolerance: Double =
         }
     }
 
-    /// 动作数据由 `scripts/import-grok-motion.mjs` 生成：待机与工作各由多个片段轮换。
+    /// 动作数据由 `scripts/import-motion.mjs` 生成：待机与工作各由多个片段轮换。
     @Test func idleAndWorkingRotateThroughSeveralClips() {
         #expect(Set(motion.states["idle"]!.loop).count >= 3)
         #expect(Set(motion.states["working"]!.loop).count >= 6)

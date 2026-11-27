@@ -1,30 +1,30 @@
-// 把 Grok Bot 的动作片段换算成 MascotKit 的 motion.json。
+// 把 外部动作片段换算成 MascotKit 的 motion.json。
 //
-//   node scripts/import-grok-motion.mjs <Grok 的 motion.js> Sources/MascotKit/Resources/motion.json
+//   node scripts/import-motion.mjs <输入文件 motion.js> Sources/MascotKit/Resources/motion.json
 //
-// Grok 的数据在 social-studio 的 uploads/motion/grok-bot/motion.js（BG_STATES 与 BG_CLIPS），本仓不存副本。
+// 输入文件须定义 BG_CLIPS，源数据由调试台维护。
 // 关键帧的时间、数值与贝塞尔缓动原样保留，只做单位与坐标换算；哪个状态用哪些片段、叠加哪些附属部件写在本文件里。
 // motion.json 是生成物：要改动作，改这里的对应表或换算常量后重新生成，不手改 motion.json。
 import { readFileSync, writeFileSync } from "node:fs";
 
 // ---- 换算常量 ----
 
-// Grok 的位移以身体大小为单位、向上为正；Kit 以画布边长的百分之一为单位、向下为正。
+// 输入数据的位移以身体大小为单位、向上为正；Kit 以画布边长的百分之一为单位、向下为正。
 const POSITION_SCALE = 50;
-// Grok 的整体缩放静止值
+// 输入数据的整体缩放静止值
 const REST_SCALE = 0.6;
 // 表情轨里的 blink 是瞬时事件，换成眼睑轨道上的一次闭合
 const BLINK_CLOSE = 0.06;
 const BLINK_OPEN = 0.1;
 
-// Grok 的表情名对应到 Kit 的表情名
+// 输入数据的表情名对应到 Kit 的表情名
 const EXPRESSIONS = {
   neutral: "round", happy: "happy", sad: "worried", surprised: "surprised", confused: "confused",
   strange: "confused", inspect: "focus", inspecting: "focus", calm: "calm", squinted: "squinted", sleepy: "sleepy",
 };
 
 // ---- 附属部件 ----
-// Grok 用变形指令画的状态专属图形没有关键帧数据，这部分是 Kit 自己的。位置单位为角色设计坐标。
+// 源动画用变形指令画的状态专属图形没有关键帧数据，这部分是 Kit 自己的。位置单位为角色设计坐标。
 
 const ORBIT_CENTER = [13, 13];
 const ORBIT_RADIUS = [10.5, 3.6];
@@ -85,7 +85,7 @@ const OVERLAYS = {
 };
 
 // ---- 对应表 ----
-// Kit 片段名 → Grok 片段、状态自带的表情（Grok 状态指令里的 face）、叠加的附属部件。
+// Kit 片段名 → 输入片段、状态自带的表情（输入状态指令里的 face）、叠加的附属部件。
 // overlay 的 fit 为 true 时把附属部件动画拉伸到片段全长，否则按原速播一次。
 
 const CLIPS = {
@@ -110,9 +110,8 @@ const CLIPS = {
   sleep: { from: "Idle_B", face: "sleepy", overlay: "zzz", fit: true },
 };
 
-// Kit 状态 → 片段。待机与工作沿用 Grok 的片段清单与顺序；Grok 没有打招呼，取它的「兴奋」。
-// ref 是所参考的 GrokBot 状态编号（social-studio 的 mascot-kit.js 里的 GROK_STATES），每个状态必填；
-// 一个状态的片段来自两个 Grok 状态时写数组。social-studio 的 tools/mascot.test.mjs 核对片段确实换算自所参考的状态。
+// Kit 状态 → 片段。待机与工作沿用输入数据的片段清单与顺序；打招呼采用兴奋片段。
+// ref 保留调试台使用的稳定参考编号；涉及多个参考状态时按顺序列出。
 const STATES = {
   idle: { ref: "GB-AN-01", loop: ["idleB", "idleB", "idleD", "idleB", "idleA"], still: { clip: "idleB", t: 0 } },
   greeting: { ref: ["GB-AN-19", "GB-AN-01"], enter: "greet", loop: ["idleB", "idleB", "idleD", "idleB", "idleA"], still: { clip: "idleB", t: 0 } },
@@ -181,7 +180,7 @@ function convertClip(source, { face, overlay, fit }) {
   const tracks = {};
   if (from.position) tracks.position = trim(from.position, start, end, ([x, y]) => [round(x * POSITION_SCALE), round(-y * POSITION_SCALE)]);
   if (from.rotation) {
-    // Grok 的转动是 [俯仰, 左右转, 平面内]，右手系、向上为正：平面内一轴换成屏幕上的顺时针角度
+    // 输入数据的转动是 [俯仰, 左右转, 平面内]，右手系、向上为正：平面内一轴换成屏幕上的顺时针角度
     tracks.rotation = trim(from.rotation, start, end, ([, , z]) => round(-z));
     tracks.turn = trim(from.rotation, start, end, ([x, y]) => [round(y), round(x)]);
   }
@@ -226,15 +225,15 @@ function convertClip(source, { face, overlay, fit }) {
 }
 
 const [sourcePath, outputPath] = process.argv.slice(2);
-if (!sourcePath || !outputPath) throw new Error("用法：node scripts/import-grok-motion.mjs <Grok 的 motion.js> <motion.json>");
+if (!sourcePath || !outputPath) throw new Error("用法：node scripts/import-motion.mjs <输入文件 motion.js> <motion.json>");
 const { BG_CLIPS } = new Function(readFileSync(sourcePath, "utf8") + ";return { BG_CLIPS };")();
 const clips = {};
 for (const [name, spec] of Object.entries(CLIPS)) {
   const source = BG_CLIPS[spec.from];
-  if (!source) throw new Error("Grok 数据里没有片段 " + spec.from);
+  if (!source) throw new Error("输入数据里没有片段 " + spec.from);
   clips[name] = convertClip(source, spec);
 }
-for (const [name, state] of Object.entries(STATES)) if (!state.ref) throw new Error("状态 " + name + " 没有登记参考的 GrokBot 状态编号");
-const motion = { formatVersion: 2, generatedBy: "scripts/import-grok-motion.mjs", states: STATES, clips };
+for (const [name, state] of Object.entries(STATES)) if (!state.ref) throw new Error("状态 " + name + " 没有登记参考的 状态编号");
+const motion = { formatVersion: 2, generatedBy: "scripts/import-motion.mjs", states: STATES, clips };
 writeFileSync(outputPath, JSON.stringify(motion, null, 1) + "\n");
 console.log(Object.entries(clips).map(([name, clip]) => name + " " + clip.duration + " 秒").join("\n"));

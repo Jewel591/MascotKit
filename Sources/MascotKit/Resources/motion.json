@@ -1,6 +1,6 @@
 {
  "formatVersion": 2,
- "generatedBy": "scripts/import-grok-motion.mjs",
+ "generatedBy": "scripts/import-motion.mjs",
  "states": {
   "idle": {
    "ref": "GB-AN-01",

@@ -28,13 +28,8 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
    片段可以写表演性的眼睑轨道，写了就不再叠加自然眨眼。表情的 `blinks` 为 `false` 时眼睛不随眼睑压扁。
 7. **静态姿势**：减弱动态效果、App 不在前台、运行在小组件或 Live Activity 的扩展里时，只画状态表 `still` 指定的那一帧，
    不启动时间轴。
-8. **造型原创，动作取自 Grok Bot**。角色的路径、配色与表情图形是作者原创，不得使用第三方角色的造型。
-   动作片段由 Grok Bot 的动作数据换算而来（Ivens 2026-11-26 裁决：自行编写的动作观感不可靠）：`motion.json` 是
-   `scripts/import-grok-motion.mjs` 的生成物，不手改；要调动作，改脚本里的状态与片段对应表或换算常量后重新生成。
-   Grok 的源数据在 social-studio 的 `uploads/motion/grok-bot/motion.js`，本仓不存副本。
-   每个状态必须在脚本的 `STATES` 里用 `ref` 写明所参考的 GrokBot 状态编号（`GB-AN-<序号>`，编号表在 social-studio 的 `mascot-kit.js`），
-   生成的 `motion.json` 带着它，social-studio 的 GrokBot 页据此显示引用数量。
-   Grok 用变形指令画的状态专属图形没有关键帧数据，思考圆点、环绕、问号、z 与星这些附属部件的动画是 Kit 自己写的，同在该脚本里。
+8. **角色造型与动作数据分开维护**。角色路径、配色与表情图形由作者绘制。动作由外部关键帧数据换算，
+   附属部件由 Kit 定义。每个状态的 `ref` 保留调试台使用的稳定参考编号。调整动作时修改导入脚本的对应表或换算常量，重新生成 `motion.json`。
 9. **仓库公开，只供作者自己的 App 引用**，角色不公开授权。LICENSE 写明只用于作者自己的产品。代码与提交历史不写产品策略参数。
 10. **Kit 内没有用户可见字符串**，视图对辅助功能隐藏；需要朗读的状态文案由宿主自己提供。
 
@@ -89,11 +84,11 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
 
 ## 新增状态或片段
 
-先按不变式 2 确认它是一个语义状态。在 `scripts/import-grok-motion.mjs` 的 `CLIPS` 与 `STATES` 加对应关系并重新生成
+将环境变量 `MOTION_SOURCE` 设为输入动作文件的路径。先按不变式 2 确认它是一个语义状态。在 `scripts/import-motion.mjs` 的 `CLIPS` 与 `STATES` 加对应关系并重新生成
 `motion.json`，`MascotState` 加 case，新表情要给每个角色补上，并更新 README 的状态表。
 
 ```sh
-node scripts/import-grok-motion.mjs ../social-studio/uploads/motion/grok-bot/motion.js Sources/MascotKit/Resources/motion.json
+node scripts/import-motion.mjs "$MOTION_SOURCE" Sources/MascotKit/Resources/motion.json
 python3 scripts/generate-pose-checks.py Sources/MascotKit/Resources/motion.json Tests/MascotKitTests/Fixtures/pose-checks.json
 ```
 
