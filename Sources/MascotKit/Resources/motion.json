@@ -3,6 +3,7 @@
  "generatedBy": "scripts/import-grok-motion.mjs",
  "states": {
   "idle": {
+   "ref": "GB-AN-01",
    "loop": [
     "idleB",
     "idleB",
@@ -16,6 +17,10 @@
    }
   },
   "greeting": {
+   "ref": [
+    "GB-AN-19",
+    "GB-AN-01"
+   ],
    "enter": "greet",
    "loop": [
     "idleB",
@@ -30,6 +35,7 @@
    }
   },
   "listening": {
+   "ref": "GB-AN-02",
    "loop": "listen",
    "still": {
     "clip": "listen",
@@ -37,6 +43,7 @@
    }
   },
   "thinking": {
+   "ref": "GB-AN-03",
    "loop": "think",
    "still": {
     "clip": "think",
@@ -44,6 +51,7 @@
    }
   },
   "working": {
+   "ref": "GB-AN-07",
    "loop": [
     "workA",
     "workB",
@@ -58,6 +66,7 @@
    }
   },
   "waiting": {
+   "ref": "GB-AN-12",
    "loop": "wait",
    "still": {
     "clip": "wait",
@@ -65,6 +74,10 @@
    }
   },
   "completed": {
+   "ref": [
+    "GB-AN-14",
+    "GB-AN-01"
+   ],
    "enter": "celebrate",
    "loop": "completedHold",
    "still": {
@@ -73,6 +86,7 @@
    }
   },
   "failed": {
+   "ref": "GB-AN-15",
    "loop": "failedHold",
    "still": {
     "clip": "failedHold",
@@ -80,6 +94,7 @@
    }
   },
   "happy": {
+   "ref": "GB-AN-18",
    "loop": "happy",
    "still": {
     "clip": "happy",
@@ -87,6 +102,7 @@
    }
   },
   "confused": {
+   "ref": "GB-AN-28",
    "loop": "confused",
    "still": {
     "clip": "confused",
@@ -94,6 +110,7 @@
    }
   },
   "sleeping": {
+   "ref": "GB-AN-16",
    "loop": "sleep",
    "still": {
     "clip": "sleep",
@@ -103,6 +120,7 @@
  },
  "clips": {
   "idleA": {
+   "source": "Idle_A",
    "duration": 6,
    "tracks": {
     "position": [
@@ -445,6 +463,7 @@
    }
   },
   "idleB": {
+   "source": "Idle_B",
    "duration": 4,
    "tracks": {
     "position": [
@@ -681,6 +700,7 @@
    }
   },
   "idleD": {
+   "source": "Idle_D",
    "duration": 6,
    "tracks": {
     "rotation": [
@@ -947,6 +967,7 @@
    }
   },
   "greet": {
+   "source": "Done_C",
    "duration": 2,
    "tracks": {
     "position": [
@@ -1220,6 +1241,7 @@
    }
   },
   "listen": {
+   "source": "Idle_D",
    "duration": 6,
    "tracks": {
     "rotation": [
@@ -1486,6 +1508,7 @@
    }
   },
   "think": {
+   "source": "Idle_B",
    "duration": 4,
    "tracks": {
     "position": [
@@ -1880,6 +1903,7 @@
    }
   },
   "workA": {
+   "source": "Working_A",
    "duration": 8,
    "tracks": {
     "position": [
@@ -2367,6 +2391,7 @@
    }
   },
   "workB": {
+   "source": "Working_B",
    "duration": 4.8,
    "tracks": {
     "position": [
@@ -2702,6 +2727,7 @@
    }
   },
   "workC": {
+   "source": "Working_C",
    "duration": 5,
    "tracks": {
     "position": [
@@ -3007,6 +3033,7 @@
    }
   },
   "workD": {
+   "source": "Working_D",
    "duration": 5,
    "tracks": {
     "position": [
@@ -3283,6 +3310,7 @@
    }
   },
   "workE": {
+   "source": "Working_E",
    "duration": 4,
    "tracks": {
     "position": [
@@ -3553,6 +3581,7 @@
    }
   },
   "workF": {
+   "source": "Working_F",
    "duration": 5,
    "tracks": {
     "position": [
@@ -3944,6 +3973,7 @@
    }
   },
   "wait": {
+   "source": "Idle_B",
    "duration": 4,
    "tracks": {
     "position": [
@@ -4524,6 +4554,7 @@
    }
   },
   "celebrate": {
+   "source": "Done_A",
    "duration": 2.3692,
    "tracks": {
     "position": [
@@ -5104,6 +5135,7 @@
    }
   },
   "completedHold": {
+   "source": "Idle_B",
    "duration": 4,
    "tracks": {
     "position": [
@@ -5340,6 +5372,7 @@
    }
   },
   "failedHold": {
+   "source": "Blocked_B",
    "duration": 3,
    "tracks": {
     "position": [
@@ -5429,6 +5462,7 @@
    }
   },
   "happy": {
+   "source": "Done_A",
    "duration": 2.3692,
    "tracks": {
     "position": [
@@ -5898,6 +5932,7 @@
    }
   },
   "confused": {
+   "source": "Blocked_A",
    "duration": 2.1,
    "tracks": {
     "position": [
@@ -6276,6 +6311,7 @@
    }
   },
   "sleep": {
+   "source": "Idle_B",
    "duration": 4,
    "tracks": {
     "position": [

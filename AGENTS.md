@@ -32,6 +32,8 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
    动作片段由 Grok Bot 的动作数据换算而来（Ivens 2026-11-26 裁决：自行编写的动作观感不可靠）：`motion.json` 是
    `scripts/import-grok-motion.mjs` 的生成物，不手改；要调动作，改脚本里的状态与片段对应表或换算常量后重新生成。
    Grok 的源数据在 social-studio 的 `uploads/motion/grok-bot/motion.js`，本仓不存副本。
+   每个状态必须在脚本的 `STATES` 里用 `ref` 写明所参考的 GrokBot 状态编号（`GB-AN-<序号>`，编号表在 social-studio 的 `mascot-kit.js`），
+   生成的 `motion.json` 带着它，social-studio 的 GrokBot 页据此显示引用数量。
    Grok 用变形指令画的状态专属图形没有关键帧数据，思考圆点、环绕、问号、z 与星这些附属部件的动画是 Kit 自己写的，同在该脚本里。
 9. **仓库公开，只供作者自己的 App 引用**，角色不公开授权。LICENSE 写明只用于作者自己的产品。代码与提交历史不写产品策略参数。
 10. **Kit 内没有用户可见字符串**，视图对辅助功能隐藏；需要朗读的状态文案由宿主自己提供。

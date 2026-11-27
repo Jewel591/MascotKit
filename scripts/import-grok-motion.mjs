@@ -105,24 +105,26 @@ const CLIPS = {
   celebrate: { from: "Done_A", face: "happy", overlay: "spark" },
   completedHold: { from: "Idle_B", face: "happy" },
   failedHold: { from: "Blocked_B" },
-  happy: { from: "Done_A", face: "happy" },
-  confused: { from: "Blocked_A", overlay: "question", fit: true },
+  happy: { ref: "GB-AN-18", from: "Done_A", face: "happy" },
+  confused: { ref: "GB-AN-28", from: "Blocked_A", overlay: "question", fit: true },
   sleep: { from: "Idle_B", face: "sleepy", overlay: "zzz", fit: true },
 };
 
 // Kit 状态 → 片段。待机与工作沿用 Grok 的片段清单与顺序；Grok 没有打招呼，取它的「兴奋」。
+// ref 是所参考的 GrokBot 状态编号（social-studio 的 mascot-kit.js 里的 GROK_STATES），每个状态必填；
+// 一个状态的片段来自两个 Grok 状态时写数组。social-studio 的 tools/mascot.test.mjs 核对片段确实换算自所参考的状态。
 const STATES = {
-  idle: { loop: ["idleB", "idleB", "idleD", "idleB", "idleA"], still: { clip: "idleB", t: 0 } },
-  greeting: { enter: "greet", loop: ["idleB", "idleB", "idleD", "idleB", "idleA"], still: { clip: "idleB", t: 0 } },
-  listening: { loop: "listen", still: { clip: "listen", t: 0 } },
-  thinking: { loop: "think", still: { clip: "think", t: 2.5 } },
-  working: { loop: ["workA", "workB", "workC", "workD", "workE", "workF"], still: { clip: "workD", t: 0 } },
-  waiting: { loop: "wait", still: { clip: "wait", t: 0 } },
-  completed: { enter: "celebrate", loop: "completedHold", still: { clip: "completedHold", t: 0 } },
-  failed: { loop: "failedHold", still: { clip: "failedHold", t: 0 } },
-  happy: { loop: "happy", still: { clip: "happy", t: 0.6 } },
-  confused: { loop: "confused", still: { clip: "confused", t: 0.8 } },
-  sleeping: { loop: "sleep", still: { clip: "sleep", t: 2 } },
+  idle: { ref: "GB-AN-01", loop: ["idleB", "idleB", "idleD", "idleB", "idleA"], still: { clip: "idleB", t: 0 } },
+  greeting: { ref: ["GB-AN-19", "GB-AN-01"], enter: "greet", loop: ["idleB", "idleB", "idleD", "idleB", "idleA"], still: { clip: "idleB", t: 0 } },
+  listening: { ref: "GB-AN-02", loop: "listen", still: { clip: "listen", t: 0 } },
+  thinking: { ref: "GB-AN-03", loop: "think", still: { clip: "think", t: 2.5 } },
+  working: { ref: "GB-AN-07", loop: ["workA", "workB", "workC", "workD", "workE", "workF"], still: { clip: "workD", t: 0 } },
+  waiting: { ref: "GB-AN-12", loop: "wait", still: { clip: "wait", t: 0 } },
+  completed: { ref: ["GB-AN-14", "GB-AN-01"], enter: "celebrate", loop: "completedHold", still: { clip: "completedHold", t: 0 } },
+  failed: { ref: "GB-AN-15", loop: "failedHold", still: { clip: "failedHold", t: 0 } },
+  happy: { ref: "GB-AN-18", loop: "happy", still: { clip: "happy", t: 0.6 } },
+  confused: { ref: "GB-AN-28", loop: "confused", still: { clip: "confused", t: 0.8 } },
+  sleeping: { ref: "GB-AN-16", loop: "sleep", still: { clip: "sleep", t: 2 } },
 };
 
 // ---- 取样（裁剪到工作区时算边界值）----
@@ -212,7 +214,7 @@ function convertClip(source, { face, overlay, fit }) {
     tracks.lids = lids;
   }
 
-  const clip = { duration, tracks };
+  const clip = { source: source.name, duration, tracks };
   if (overlay) {
     const spec = overlay === "orbit" ? orbit(duration) : OVERLAYS[overlay];
     const stretch = fit ? duration / spec.duration : 1;
@@ -232,6 +234,7 @@ for (const [name, spec] of Object.entries(CLIPS)) {
   if (!source) throw new Error("Grok 数据里没有片段 " + spec.from);
   clips[name] = convertClip(source, spec);
 }
+for (const [name, state] of Object.entries(STATES)) if (!state.ref) throw new Error("状态 " + name + " 没有登记参考的 GrokBot 状态编号");
 const motion = { formatVersion: 2, generatedBy: "scripts/import-grok-motion.mjs", states: STATES, clips };
 writeFileSync(outputPath, JSON.stringify(motion, null, 1) + "\n");
 console.log(Object.entries(clips).map(([name, clip]) => name + " " + clip.duration + " 秒").join("\n"));
