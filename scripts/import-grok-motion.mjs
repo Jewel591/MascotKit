@@ -105,8 +105,8 @@ const CLIPS = {
   celebrate: { from: "Done_A", face: "happy", overlay: "spark" },
   completedHold: { from: "Idle_B", face: "happy" },
   failedHold: { from: "Blocked_B" },
-  happy: { ref: "GB-AN-18", from: "Done_A", face: "happy" },
-  confused: { ref: "GB-AN-28", from: "Blocked_A", overlay: "question", fit: true },
+  happy: { from: "Done_A", face: "happy" },
+  confused: { from: "Blocked_A", overlay: "question", fit: true },
   sleep: { from: "Idle_B", face: "sleepy", overlay: "zzz", fit: true },
 };
 
