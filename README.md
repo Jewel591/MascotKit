@@ -14,7 +14,7 @@ MascotView(.mono, state: .working)
 ## 安装
 
 ```swift
-.package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.0")
+.package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.1")
 ```
 
 iOS 17 / macOS 14 起，Swift 6。

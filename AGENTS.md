@@ -19,7 +19,7 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
    - 新状态立即打断旧状态：数值量从被打断时的姿势用 0.2 秒过渡到新片段，表情与附属部件立刻取新状态；旧片段不会先回到待机。
    - 同一状态重复传入保持进度。
    - 业务结果不跟随动画，Kit 不提供播放完成的回调。
-4. **角色与动作都是数据**，在 `Sources/MascotKit/Resources/`，也是网页调试台（social-studio 的「原创角色」页）读取的同一份。
+4. **角色与动作都是数据**，在 `Sources/MascotKit/Resources/`，也是网页调试台读取的同一份。
    引擎与渲染不为某个角色写分支。
 5. **角色结构上限**：身体、两只眼、嘴等面部附加形状、少量附属部件。不做四肢骨骼、三维渲染，不引入 Lottie 或 Rive。
    角色是平面的：片段里的立体转动只投影成身体变窄与脸部滑动（`MascotEngine.projection`），转到背面不画脸。
@@ -28,13 +28,7 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
    片段可以写表演性的眼睑轨道，写了就不再叠加自然眨眼。表情的 `blinks` 为 `false` 时眼睛不随眼睑压扁。
 7. **静态姿势**：减弱动态效果、App 不在前台、运行在小组件或 Live Activity 的扩展里时，只画状态表 `still` 指定的那一帧，
    不启动时间轴。
-8. **造型原创，动作取自 Grok Bot**。角色的路径、配色与表情图形是作者原创，不得使用第三方角色的造型。
-   动作片段由 Grok Bot 的动作数据换算而来（Ivens 2026-11-26 裁决：自行编写的动作观感不可靠）：`motion.json` 是
-   `scripts/import-grok-motion.mjs` 的生成物，不手改；要调动作，改脚本里的状态与片段对应表或换算常量后重新生成。
-   Grok 的源数据在 social-studio 的 `uploads/motion/grok-bot/motion.js`，本仓不存副本。
-   每个状态必须在脚本的 `STATES` 里用 `ref` 写明所参考的 GrokBot 状态编号（`GB-AN-<序号>`，编号表在 social-studio 的 `mascot-kit.js`），
-   生成的 `motion.json` 带着它，social-studio 的 GrokBot 页据此显示引用数量。
-   Grok 用变形指令画的状态专属图形没有关键帧数据，思考圆点、环绕、问号、z 与星这些附属部件的动画是 Kit 自己写的，同在该脚本里。
+8. **角色造型与动作分开维护**。角色文件定义路径、配色与表情。动作文件定义播放状态、关键帧与附属部件。
 9. **仓库公开，只供作者自己的 App 引用**，角色不公开授权。LICENSE 写明只用于作者自己的产品。代码与提交历史不写产品策略参数。
 10. **Kit 内没有用户可见字符串**，视图对辅助功能隐藏；需要朗读的状态文案由宿主自己提供。
 
@@ -89,11 +83,9 @@ README 是使用文档，接入步骤在 `.agents/skills/integrate-mascotkit/SKI
 
 ## 新增状态或片段
 
-先按不变式 2 确认它是一个语义状态。在 `scripts/import-grok-motion.mjs` 的 `CLIPS` 与 `STATES` 加对应关系并重新生成
-`motion.json`，`MascotState` 加 case，新表情要给每个角色补上，并更新 README 的状态表。
+在 `motion.json` 中编辑状态与片段，在 `MascotState` 添加对应状态。新增表情时同步补齐各角色，并更新 README 的状态表。
 
 ```sh
-node scripts/import-grok-motion.mjs ../social-studio/uploads/motion/grok-bot/motion.js Sources/MascotKit/Resources/motion.json
 python3 scripts/generate-pose-checks.py Sources/MascotKit/Resources/motion.json Tests/MascotKitTests/Fixtures/pose-checks.json
 ```
 

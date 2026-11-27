@@ -23,7 +23,7 @@ MascotKit 不是每个 App 的必备能力，没有角色需求的产品不接�
 1. 依赖用公开地址与兼容版本范围：
 
    ```swift
-   .package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.0")
+   .package(url: "https://github.com/Jewel591/MascotKit", from: "0.3.1")
    ```
 
    Xcode 工程里选 Up to Next Major Version，不指向本地路径或分支。
@@ -67,7 +67,7 @@ MascotKit 不是每个 App 的必备能力，没有角色需求的产品不接�
 
 ## 新增角色或状态
 
-改动在 Kit 仓库完成，步骤见 `AGENTS.md`「新增角色」「新增状态或片段」。造型与动作先在 social-studio 的「原创角色」页调好，
+改动在 Kit 仓库完成，步骤见 `AGENTS.md`「新增角色」「新增状态或片段」。造型与动作先在 角色预览页调好，
 再发 Kit 新版本，宿主升级依赖。
 
 ## 排查
